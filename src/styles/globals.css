@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
+
 html,
 body {
   padding: 0;
@@ -17,14 +19,51 @@ a {
 
 * {
   box-sizing: border-box;
+  font-family: 'Open Sans', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+button {
+  background-color: var(--tg-theme-secondary-bg-color);
+}
+
+button > span {
+  color: var(--tg-theme-text-color);
+}
+
+.button-selected {
+  background-color: var(--tg-theme-button-color);
+  border-color: var(--tg-theme-button-color);
+}
+
+.button-selected > span {
+  color: var(--tg-theme-bg-color);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--tg-theme-text-color);
+}
+
+input,
+textarea {
+  color: var(--tg-theme-text-color);
+  background-color: var(--tg-theme-secondary-bg-color);
+
+  border-color: var(--tg-theme-secondary-bg-color);
+}
+
+label {
+  color: var(--tg-theme-text-color);
+}
+
+link {
+  color: var(--tg-theme-link-color);
+}
+
+span {
+  color: var(--tg-theme-hint-color);
 }
