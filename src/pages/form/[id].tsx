@@ -72,7 +72,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
             key={index}
             name={data.name}
             label={data.title ?? undefined}
-            options={JSON.parse(data.options!)}
+            options={data.options as any}
           />
         );
 
@@ -105,12 +105,17 @@ const GetForm: NextPage<Props> = ({ form }) => {
     )
   );
 
+  console.log(form);
+
   return (
     <div className="my-4 m-0 px-2.5">
       <h1 className="mb-4 text-2xl font-bold">{form.title}</h1>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
-        {formQuestionsWithoutCategory.map((question, index) =>
+        {(form.FormCategory.length > 0
+          ? formQuestionsWithoutCategory
+          : form.FormQuestion
+        ).map((question, index) =>
           renderQuestion({
             data: question,
             index,

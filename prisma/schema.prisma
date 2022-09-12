@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -46,7 +46,7 @@ model FormQuestion {
 
   title       String?
   placeholder String?
-  options     String?
+  options     Json?
 
   name     String
   type     String
