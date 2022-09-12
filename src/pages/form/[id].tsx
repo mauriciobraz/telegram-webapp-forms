@@ -72,6 +72,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
             key={index}
             name={data.name}
             label={data.title ?? undefined}
+            required={data.required ?? undefined}
             options={data.options as any}
           />
         );
@@ -82,6 +83,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
           name={data.name}
           label={data.title ?? undefined}
           placeholder={data.placeholder ?? undefined}
+          required={data.required ?? undefined}
         />;
 
       default:
@@ -91,6 +93,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
             name={data.name}
             label={data.title ?? undefined}
             placeholder={data.placeholder ?? undefined}
+            required={data.required ?? undefined}
             type={(data.type as any) ?? 'text'}
           />
         );
