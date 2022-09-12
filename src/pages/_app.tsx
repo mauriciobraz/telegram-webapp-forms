@@ -5,6 +5,7 @@ import {
   withTelegramWebApp,
 } from 'react-telegram-webapp';
 
+import axios from 'axios';
 import dynamic from 'next/dynamic';
 import type { AppProps } from 'next/app';
 
@@ -15,8 +16,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;
 }
 
-function validateHash(hash: string): boolean {
-  return true;
+async function validateHash(hash: string): Promise<boolean> {
+  const { data } = await axios.post('/api/validate-hash', {
+    hash,
+  });
+
+  return data.ok;
 }
 
 export default dynamic(

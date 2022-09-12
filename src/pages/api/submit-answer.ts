@@ -1,5 +1,3 @@
-import { randomUUID } from 'crypto';
-
 import axios from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -9,6 +7,7 @@ type Data = {
 
 const ROUTE = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/answerWebAppQuery`;
 const REQUIRED_FIELDS = [
+  'id',
   'webAppQueryId',
   'inputMessageTitle',
   'inputMessageContent',
@@ -31,21 +30,19 @@ export default async function handler(
       .json({ message: `Missing field(s) ${missingFields.join(', ')}` });
   }
 
-  const id = randomUUID();
-
   await axios.post(ROUTE, {
     web_app_query_id: req.body.webAppQueryId,
     result: {
-      id,
+      id: req.body.id,
       type: 'article',
       title: req.body.inputMessageTitle,
       input_message_content: {
-        message_text: `${req.body.inputMessageContent} (ID: ${id})`,
+        message_text: `${req.body.inputMessageContent} (ID: ${req.body.id})`,
       },
     },
   });
 
   return res
     .status(200)
-    .json({ message: `Answer submitted successfully with ID ${id}` });
+    .json({ message: `Answer submitted successfully with ID ${req.body.id}` });
 }

@@ -17,6 +17,11 @@ type Props = InputHTMLAttributes<HTMLButtonElement> & {
   required?: boolean;
 };
 
+type HandleClickProps = {
+  event: React.MouseEvent<HTMLButtonElement, MouseEvent>;
+  value: string;
+};
+
 export const ButtonInput: React.FC<Props> = ({
   name,
   label,
@@ -25,7 +30,7 @@ export const ButtonInput: React.FC<Props> = ({
   ...rest
 }) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const { fieldName, registerField, error } = useField(name);
+  const { fieldName, defaultValue, registerField, error } = useField(name);
 
   useEffect(() => {
     registerField({
@@ -37,8 +42,11 @@ export const ButtonInput: React.FC<Props> = ({
     });
   }, [fieldName, registerField]);
 
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = event => {
+  const handleClick = ({ event, value }: HandleClickProps) => {
     if (!buttonRef.current) return;
+
+    event.preventDefault();
+    buttonRef.current.value = value;
 
     const buttons = buttonRef.current.parentElement?.children || [];
 
@@ -58,9 +66,11 @@ export const ButtonInput: React.FC<Props> = ({
         <button
           className="border-solid rounded-lg outline-none select-none mt-1.5 h-9 px-2 last:ml-1"
           key={index}
+          id={fieldName}
           ref={buttonRef}
-          value={option.value}
-          onClick={handleClick}
+          defaultValue={defaultValue}
+          onClick={event => handleClick({ event, value: option.value })}
+          {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
         >
           <span className="font-bold text-sm pt-1.5">{option.name}</span>
         </button>
