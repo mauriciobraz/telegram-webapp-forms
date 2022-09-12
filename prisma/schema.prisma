@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Form {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  FormCategory FormCategory[]
+  FormQuestion FormQuestion[]
+  title        String?
+}
+
+model FormCategory {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Form   Form   @relation(fields: [formId], references: [id])
+  formId String
+
+  Question FormQuestion[]
+  title    String?
+  name     String
+}
+
+model FormQuestion {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Form   Form   @relation(fields: [formId], references: [id])
+  formId String
+
+  FormCategory   FormCategory? @relation(fields: [formCategoryId], references: [id])
+  formCategoryId String?
+
+  title       String?
+  placeholder String?
+  options     String?
+
+  name     String
+  type     String
+  required Boolean? @default(false)
+}
