@@ -100,25 +100,21 @@ const GetForm: NextPage<Props> = ({ form }) => {
     }
   };
 
-  const formQuestionsWithoutCategory = form.FormQuestion.filter(question =>
-    form.FormCategory.some(category =>
-      category.Question.some(
-        questionFromCategory => questionFromCategory.id !== question.id
+  const formQuestionsWithoutCategory = form.FormQuestion.filter(
+    question =>
+      !form.FormCategory.some(category =>
+        category.Question.some(
+          questionFromCategory => questionFromCategory.id === question.id
+        )
       )
-    )
   );
-
-  console.log(form);
 
   return (
     <div className="my-4 m-0 px-2.5">
       <h1 className="mb-4 text-2xl font-bold">{form.title}</h1>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
-        {(form.FormCategory.length > 0
-          ? formQuestionsWithoutCategory
-          : form.FormQuestion
-        ).map((question, index) =>
+        {formQuestionsWithoutCategory.map((question, index) =>
           renderQuestion({
             data: question,
             index,
