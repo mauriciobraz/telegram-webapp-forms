@@ -5,6 +5,7 @@ import { useIsTelegramWebAppReady } from 'react-telegram-webapp';
 
 import { Form } from '@unform/web';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 import type { Form as PForm, FormCategory, FormQuestion } from '@prisma/client';
 import type { FormHandles, SubmitHandler } from '@unform/core';
 import type { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next';
@@ -22,6 +23,7 @@ type RenderQuestionProps = {
 };
 
 const GetForm: NextPage<Props> = ({ form }) => {
+  const { query } = useRouter();
   const formRef = useRef<FormHandles>(null);
   const isReady = useIsTelegramWebAppReady();
 
@@ -51,15 +53,18 @@ const GetForm: NextPage<Props> = ({ form }) => {
   };
 
   const renderQuestion: React.FC<RenderQuestionProps> = ({ data, index }) => {
+    let defaultValue = query[data.name];
+
     switch (data.type) {
       case 'button':
         return (
           <ButtonInput
             key={index}
             name={data.name}
-            label={data.title ?? undefined}
+            defaultValue={defaultValue}
             required={data.required ?? undefined}
             options={data.options as any}
+            label={data.title ?? undefined}
           />
         );
 
@@ -70,6 +75,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
           label={data.title ?? undefined}
           placeholder={data.placeholder ?? undefined}
           required={data.required ?? undefined}
+          defaultValue={defaultValue}
         />;
 
       default:
@@ -81,6 +87,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
             placeholder={data.placeholder ?? undefined}
             required={data.required ?? undefined}
             type={(data.type as any) ?? 'text'}
+            defaultValue={defaultValue}
           />
         );
     }
@@ -161,7 +168,6 @@ export const getStaticProps: GetStaticProps<IResult> = async ({ params }) => {
   if (!form)
     return {
       notFound: true,
-      redirect: '/404',
     };
 
   return {
