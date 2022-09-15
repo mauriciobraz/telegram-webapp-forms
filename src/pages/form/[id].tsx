@@ -45,20 +45,10 @@ const GetForm: NextPage<Props> = ({ form }) => {
     const initData = Object.fromEntries(new URLSearchParams(WebApp.initData));
     const initDataUser = JSON.parse(initData.user);
 
-    // TODO: Implement better security in generating this ID.
-    // E.g. generate it in backend and return to front.
-    const id = crypto.randomUUID();
-
-    await axios.post(process.env.NEXT_PUBLIC_SUBMIT_DATA_URL, {
-      id,
-      form: data,
-      userId: initDataUser.id,
-    });
-
     // This post will destroy the webapp, use it only once finished every task.
     await axios.post('/api/submit-answer', {
-      id,
-      webAppQueryId: WebApp.initDataUnsafe.query_id,
+      data: { form: data, userId: initDataUser.id },
+      webAppQueryId: initData.query_id,
       inputMessageTitle: 'Answer Submission',
       inputMessageContent: 'Hey, I answered my form!',
     });
