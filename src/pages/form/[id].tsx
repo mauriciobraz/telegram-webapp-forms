@@ -38,10 +38,6 @@ const GetForm: NextPage<Props> = ({ form }) => {
   }, [isReady]);
 
   const handleSubmit: SubmitHandler = async data => {
-    if (!process.env.NEXT_PUBLIC_SUBMIT_DATA_URL) {
-      throw new Error('NEXT_PUBLIC_SUBMIT_DATA_URL is not defined.');
-    }
-
     const initData = Object.fromEntries(new URLSearchParams(WebApp.initData));
     const initDataUser = JSON.parse(initData.user);
 
