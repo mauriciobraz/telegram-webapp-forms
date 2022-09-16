@@ -37,6 +37,9 @@ const GetForm: NextPage<Props> = ({ form }) => {
     WebApp.MainButton.setParams({ text: 'Submit' })
       .onClick(() => formRef.current?.submitForm())
       .show();
+
+    WebApp.expand();
+    WebApp.enableClosingConfirmation();
   }, [isReady]);
 
   const handleSubmit: SubmitHandler = async data => {
