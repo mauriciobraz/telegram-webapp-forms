@@ -104,7 +104,9 @@ const GetForm: NextPage<Props> = ({ form }) => {
 
   return (
     <div className="my-4 m-0 px-2.5">
-      <h1 className="mb-4 text-2xl font-bold">{form.title}</h1>
+      <h1 className="my-4 mb-4 font-extrabold text-2xl text-center">
+        {form.title}
+      </h1>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
         {formQuestionsWithoutCategory.map((question, index) =>
