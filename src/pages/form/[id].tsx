@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useIsTelegramWebAppReady } from 'react-telegram-webapp';
 
 import { Form } from '@unform/web';
-import axios from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { useRouter } from 'next/router';
 import type { Form as PForm, FormCategory, FormQuestion } from '@prisma/client';
 import type { FormHandles, SubmitHandler } from '@unform/core';
@@ -14,6 +14,7 @@ import { ButtonInput } from '../../components/ButtonInput';
 import { TextareaInput } from '../../components/TextareaInput';
 import { TextInput } from '../../components/TextInput';
 import prisma from '../../libs/prisma';
+import { NextApiRequestType, NextApiResponseType } from '../api/submit-answer';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -28,6 +29,8 @@ const GetForm: NextPage<Props> = ({ form }) => {
   const isReady = useIsTelegramWebAppReady();
 
   const { WebApp } = window.Telegram;
+
+  console.log(WebApp.initDataUnsafe.user?.id);
 
   useEffect(() => {
     if (!isReady) return;
@@ -47,12 +50,13 @@ const GetForm: NextPage<Props> = ({ form }) => {
     const initDataUser = JSON.parse(initData.user);
 
     // This post will destroy the webapp, use it only once finished every task.
-    await axios.post('/api/submit-answer', {
+    await axios.post<NextApiResponseType>('/api/submit-answer', {
       data: { form: data, userId: initDataUser.id },
+      submitUrl: form.submitUrl,
       webAppQueryId: initData.query_id,
       inputMessageTitle: 'Answer Submission',
       inputMessageContent: 'Hey, I answered my form!',
-    });
+    } as NextApiRequestType);
   };
 
   const renderQuestion: React.FC<RenderQuestionProps> = ({ data, index }) => {

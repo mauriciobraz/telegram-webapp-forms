@@ -1,47 +1,71 @@
 import { randomUUID } from 'crypto';
 
 import axios from 'axios';
+import Joi from 'joi';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-type Data = {
-  message: string;
+export type NextApiResponseType = { id: string } | { errors: string[] };
+
+type DataType = {
+  form: any;
+  userId: string;
+};
+
+export type NextApiRequestType = {
+  data: DataType;
+  submitUrl: string;
+  webAppQueryId: string;
+  inputMessageTitle: string;
+  inputMessageContent: string;
 };
 
 const ROUTE = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/answerWebAppQuery`;
-const REQUIRED_FIELDS = [
-  // 'id',
-  'data',
-  'webAppQueryId',
-  'inputMessageTitle',
-  'inputMessageContent',
-];
+
+const AUTHORIZED_SUBMIT_DOMAINS = (
+  process.env.AUTHORIZED_SUBMIT_DOMAINS?.split('|') || []
+).map(possibleDomain => new URL(possibleDomain).host);
+
+const VALIDATE_BODY_SCHEMA = Joi.object<NextApiRequestType>({
+  data: Joi.object({
+    form: Joi.object().required(),
+    userId: Joi.number().required(),
+  }),
+
+  submitUrl: Joi.string().uri(),
+  webAppQueryId: Joi.string(),
+  inputMessageTitle: Joi.string().max(256),
+  inputMessageContent: Joi.string().max(256),
+})
+  .presence('required')
+  .required();
 
 // NOTE: This post will destroy the webapp, use it carefully.
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<NextApiResponseType>
 ) {
   if (req.method !== 'POST') {
     return res.status(405);
   }
 
-  if (!REQUIRED_FIELDS.every(field => req.body[field])) {
-    const missingFields = REQUIRED_FIELDS.filter(field => !req.body[field]);
-
-    return res
-      .status(400)
-      .json({ message: `Missing field(s) ${missingFields.join(', ')}` });
+  try {
+    await VALIDATE_BODY_SCHEMA.validateAsync(req.body);
+  } catch (e) {
+    if (e instanceof Joi.ValidationError)
+      return res
+        .status(400)
+        .json({ errors: e.details.map(detail => detail.message) });
   }
 
-  if (!process.env.SUBMIT_DATA_URL) {
+  if (!AUTHORIZED_SUBMIT_DOMAINS.includes(new URL(req.body.submitUrl).host)) {
     return res
-      .status(500)
-      .json({ message: 'Missing environment variable in production' });
+      .status(400)
+      .json({ errors: ['Parameter submitUrl is not authorized.'] });
   }
 
   const id = randomUUID();
 
-  await axios.post(process.env.SUBMIT_DATA_URL, {
+  await axios.post(req.body.submitUrl, {
     id,
     ...req.body.data,
   });
@@ -58,7 +82,7 @@ export default async function handler(
     },
   });
 
-  return res
-    .status(200)
-    .json({ message: `Answer submitted successfully with ID ${req.body.id}` });
+  return res.status(200).json({
+    id: req.body.id,
+  });
 }

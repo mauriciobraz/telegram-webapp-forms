@@ -15,7 +15,9 @@ model Form {
 
   FormCategory FormCategory[]
   FormQuestion FormQuestion[]
-  title        String?
+
+  title     String?
+  submitUrl String
 }
 
 model FormCategory {
