@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
 import axios from 'axios';
-import Joi from 'joi';
+import * as Yup from 'yup';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export type NextApiResponseType = { id: string } | { errors: string[] };
@@ -25,18 +25,19 @@ const AUTHORIZED_SUBMIT_DOMAINS = (
   process.env.AUTHORIZED_SUBMIT_DOMAINS?.split('|') || []
 ).map(possibleDomain => new URL(possibleDomain).host);
 
-const VALIDATE_BODY_SCHEMA = Joi.object<NextApiRequestType>({
-  data: Joi.object({
-    form: Joi.object().required(),
-    userId: Joi.number().required(),
-  }),
+console.log(Yup);
 
-  submitUrl: Joi.string().uri(),
-  webAppQueryId: Joi.string(),
-  inputMessageTitle: Joi.string().max(256),
-  inputMessageContent: Joi.string().max(256),
-})
-  .presence('required')
+const VALIDATE_BODY_SCHEMA = Yup.object()
+  .shape({
+    data: Yup.object()
+      .shape({ form: Yup.object().required(), userId: Yup.number().required() })
+      .required(),
+
+    submitUrl: Yup.string().url().required(),
+    webAppQueryId: Yup.string().required(),
+    inputMessageTitle: Yup.string().max(256).required(),
+    inputMessageContent: Yup.string().max(256).required(),
+  })
   .required();
 
 // NOTE: This post will destroy the webapp, use it carefully.
@@ -49,12 +50,12 @@ export default async function handler(
   }
 
   try {
-    await VALIDATE_BODY_SCHEMA.validateAsync(req.body);
+    await VALIDATE_BODY_SCHEMA.validate(req.body);
   } catch (e) {
-    if (e instanceof Joi.ValidationError)
+    if (e instanceof Yup.ValidationError)
       return res
         .status(400)
-        .json({ errors: e.details.map(detail => detail.message) });
+        .json({ errors: e.inner.map(detail => detail.message) });
   }
 
   if (!AUTHORIZED_SUBMIT_DOMAINS.includes(new URL(req.body.submitUrl).host)) {
@@ -77,7 +78,7 @@ export default async function handler(
       type: 'article',
       title: req.body.inputMessageTitle,
       input_message_content: {
-        message_text: `${req.body.inputMessageContent} (ID: ${req.body.id})`,
+        message_text: `${req.body.inputMessageContent} (ID: ${id})`,
       },
     },
   });

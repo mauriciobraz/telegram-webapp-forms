@@ -6,6 +6,7 @@ import { useIsTelegramWebAppReady } from 'react-telegram-webapp';
 import { Form } from '@unform/web';
 import Axios from 'axios';
 import { useRouter } from 'next/router';
+import * as Yup from 'yup';
 import type { Form as PForm, FormCategory, FormQuestion } from '@prisma/client';
 import type { FormHandles, SubmitHandler } from '@unform/core';
 import type { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next';
@@ -30,8 +31,6 @@ const Page: NextPage<Props> = ({ form }) => {
 
   const { WebApp } = window.Telegram;
 
-  console.log(WebApp.initDataUnsafe.user?.id);
-
   useEffect(() => {
     if (!isReady) return;
 
@@ -46,17 +45,61 @@ const Page: NextPage<Props> = ({ form }) => {
   }, [isReady]);
 
   const handleSubmit: SubmitHandler = async data => {
-    const initData = Object.fromEntries(new URLSearchParams(WebApp.initData));
-    const initDataUser = JSON.parse(initData.user);
+    const formQuestions = [
+      form.FormQuestion,
+      form.FormCategory.map(category => category.Question),
+    ].flat(2);
 
-    // This post will destroy the webapp, use it only once finished every task.
-    await Axios.post<NextApiResponseType>('/api/submit-answer', {
-      data: { form: data, userId: initDataUser.id },
-      submitUrl: form.submitUrl,
-      webAppQueryId: initData.query_id,
-      inputMessageTitle: 'Answer Submission',
-      inputMessageContent: 'Hey, I answered my form!',
-    } as NextApiRequestType);
+    const requiredQuestions = formQuestions.filter(
+      question => question.required
+    );
+
+    const isRequiredSchema = Yup.object(
+      requiredQuestions.reduce(
+        (prev, curr) => ({
+          ...prev,
+          [curr.name]: (curr.type === 'number'
+            ? Yup.number()
+            : curr.type === 'email'
+            ? Yup.string().email()
+            : curr.type === 'url'
+            ? Yup.string().url()
+            : Yup.string()
+          ).required(`${curr.title} is a required field`),
+        }),
+        {}
+      )
+    ).required();
+
+    try {
+      await isRequiredSchema.validate(data, {
+        abortEarly: false,
+      });
+
+      const initData = Object.fromEntries(new URLSearchParams(WebApp.initData));
+      const initDataUser = JSON.parse(initData.user);
+
+      // This post will destroy the webapp, use it only once finished every task.
+      await Axios.post<NextApiResponseType>('/api/submit-answer', {
+        data: { form: data, userId: initDataUser.id },
+        submitUrl: form.submitUrl,
+        webAppQueryId: initData.query_id,
+        inputMessageTitle: 'Answer Submission',
+        inputMessageContent: 'Hey, I answered my form!',
+      } as NextApiRequestType);
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        const validationErrors: Record<string, string> = {};
+
+        err.inner.forEach(error => {
+          validationErrors[error.path as string] = error.message;
+        });
+
+        formRef.current?.setErrors(validationErrors);
+
+        return;
+      }
+    }
   };
 
   const renderQuestion: React.FC<RenderQuestionProps> = ({ data, index }) => {

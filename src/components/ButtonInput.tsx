@@ -76,6 +76,8 @@ export const ButtonInput: React.FC<Props> = ({
         </button>
       ))}
 
+      <br />
+
       {error && <InputError error={error} />}
     </div>
   );
