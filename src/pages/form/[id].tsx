@@ -180,8 +180,7 @@ export const getStaticProps: GetStaticProps<IResult> = async ({ params }) => {
     };
 
   return {
-    props: {
-      form: JSON.parse(JSON.stringify(form)),
-    },
+    props: { form: JSON.parse(JSON.stringify(form)) },
+    revalidate: 60, // 1 minute
   };
 };
