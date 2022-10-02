@@ -187,6 +187,8 @@ export const getStaticProps: GetStaticProps<StaticProps> = async ({
 
   return {
     props: { form: JSON.parse(JSON.stringify(form)) },
-    revalidate: 60, // 1 minute
+    revalidate:
+      (process.env.FORM_IRS_TIME && parseInt(process.env.FORM_IRS_TIME, 10)) ||
+      1800, // 5min
   };
 };
