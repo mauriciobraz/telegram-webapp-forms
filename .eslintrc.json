@@ -1,6 +1,6 @@
 {
-  "extends": "next/core-web-vitals",
-  "plugins": ["simple-import-sort"],
+  "extends": ["next/core-web-vitals", "plugin:tailwindcss/recommended"],
+  "plugins": ["simple-import-sort", "tailwindcss"],
   "rules": {
     "simple-import-sort/exports": "error",
     "simple-import-sort/imports": [

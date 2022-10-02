@@ -34,13 +34,13 @@ export const TextareaInput: React.FC<Props> = ({
   }, [fieldName, registerField]);
 
   return (
-    <div className="flex-col flex-1 mb-4">
+    <div className="mb-4 flex-1 flex-col">
       {label && (
         <InputHeader label={label} htmlFor={fieldName} required={required} />
       )}
 
       <textarea
-        className="border-solid rounded-lg outline-none resize-none text-sm w-full min-h-full max-h-24 align-middle border-x-8 border-y-8 placeholder:text-sm last:mt-2.5"
+        className="max-h-24 min-h-full w-full resize-none rounded-lg border-8 border-solid align-middle text-sm outline-none placeholder:text-sm last:mt-2.5"
         type="text"
         id={fieldName}
         ref={inputRef}

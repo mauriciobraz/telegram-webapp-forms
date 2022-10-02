@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useIsTelegramWebAppReady } from 'react-telegram-webapp';
 
 import { Form } from '@unform/web';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import Axios from 'axios';
 import { useRouter } from 'next/router';
 import type { Form as PForm, FormCategory, FormQuestion } from '@prisma/client';
 import type { FormHandles, SubmitHandler } from '@unform/core';
@@ -18,12 +18,12 @@ import { NextApiRequestType, NextApiResponseType } from '../api/submit-answer';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
-type RenderQuestionProps = {
+interface RenderQuestionProps {
   data: FormQuestion;
   index: number;
-};
+}
 
-const GetForm: NextPage<Props> = ({ form }) => {
+const Page: NextPage<Props> = ({ form }) => {
   const { query } = useRouter();
   const formRef = useRef<FormHandles>(null);
   const isReady = useIsTelegramWebAppReady();
@@ -50,7 +50,7 @@ const GetForm: NextPage<Props> = ({ form }) => {
     const initDataUser = JSON.parse(initData.user);
 
     // This post will destroy the webapp, use it only once finished every task.
-    await axios.post<NextApiResponseType>('/api/submit-answer', {
+    await Axios.post<NextApiResponseType>('/api/submit-answer', {
       data: { form: data, userId: initDataUser.id },
       submitUrl: form.submitUrl,
       webAppQueryId: initData.query_id,
@@ -110,10 +110,8 @@ const GetForm: NextPage<Props> = ({ form }) => {
   );
 
   return (
-    <div className="my-4 m-0 px-2.5">
-      <h1 className="my-4 mb-4 font-extrabold text-2xl text-center">
-        {form.title}
-      </h1>
+    <div className="m-0 my-4 px-2.5">
+      <h1 className="my-4 text-center text-2xl font-extrabold">{form.title}</h1>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
         {formQuestionsWithoutCategory.map((question, index) =>
@@ -139,37 +137,45 @@ const GetForm: NextPage<Props> = ({ form }) => {
   );
 };
 
-export default GetForm;
+export default Page;
 
 export const getStaticPaths = async () => {
-  const paths = await prisma.form.findMany({
-    select: { id: true },
+  const rawPaths = await prisma.form.findMany({
+    select: {
+      id: true,
+    },
   });
 
   return {
-    paths: paths.map(form => ({ params: form })),
+    paths: rawPaths.map(form => ({ params: form })),
     fallback: true,
   };
 };
 
-interface IParams extends ParsedUrlQuery {
-  id: string;
-}
-
-interface IResult {
+interface StaticProps {
   form: PForm & {
     FormQuestion: FormQuestion[];
     FormCategory: (FormCategory & { Question: FormQuestion[] })[];
   };
 }
 
-export const getStaticProps: GetStaticProps<IResult> = async ({ params }) => {
+interface IParams extends ParsedUrlQuery {
+  id: string;
+}
+
+export const getStaticProps: GetStaticProps<StaticProps> = async ({
+  params,
+}) => {
   const { id } = params as IParams;
 
   const form = await prisma.form.findUnique({
     where: { id },
     include: {
-      FormCategory: { include: { Question: true } },
+      FormCategory: {
+        include: {
+          Question: true,
+        },
+      },
       FormQuestion: true,
     },
   });

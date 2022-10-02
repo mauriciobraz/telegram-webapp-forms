@@ -57,14 +57,14 @@ export const ButtonInput: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex-col flex-1 mb-4">
+    <div className="mb-4 flex-1 flex-col">
       {label && (
         <InputHeader label={label} htmlFor={fieldName} required={required} />
       )}
 
       {options.map((option, index) => (
         <button
-          className="border-solid rounded-lg outline-none select-none mt-1.5 h-9 px-2 last:ml-1"
+          className="mt-1.5 h-9 select-none rounded-lg border-solid px-2 outline-none last:ml-1"
           key={index}
           id={fieldName}
           ref={buttonRef}
@@ -72,7 +72,7 @@ export const ButtonInput: React.FC<Props> = ({
           onClick={event => handleClick({ event, value: option.value })}
           {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
         >
-          <span className="font-bold text-sm pt-1.5">{option.name}</span>
+          <span className="pt-1.5 text-sm font-bold">{option.name}</span>
         </button>
       ))}
 

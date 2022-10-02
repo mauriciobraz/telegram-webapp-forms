@@ -8,8 +8,6 @@ html,
 body {
   padding: 0;
   margin: 0;
-  /* font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif; */
 }
 
 a {
@@ -48,14 +46,6 @@ h6 {
   color: var(--tg-theme-text-color);
 }
 
-input,
-textarea {
-  color: var(--tg-theme-text-color);
-  background-color: var(--tg-theme-secondary-bg-color);
-
-  border-color: var(--tg-theme-secondary-bg-color);
-}
-
 label {
   color: var(--tg-theme-text-color);
 }
@@ -66,4 +56,12 @@ link {
 
 span {
   color: var(--tg-theme-hint-color);
+}
+
+input,
+textarea {
+  color: var(--tg-theme-text-color);
+  background-color: var(--tg-theme-secondary-bg-color);
+
+  border-color: var(--tg-theme-secondary-bg-color);
 }

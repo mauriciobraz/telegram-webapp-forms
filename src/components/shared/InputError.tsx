@@ -5,5 +5,5 @@ type Props = {
 };
 
 export const InputError: React.FC<Props> = ({ error }) => {
-  return <span className="text-red-500 text-xs pt-1.5">{error}</span>;
+  return <span className="pt-1.5 text-xs text-red-500">{error}</span>;
 };
