@@ -73,7 +73,7 @@ export default async function handler(
   await axios.post(ROUTE, {
     web_app_query_id: req.body.webAppQueryId,
     result: {
-      id: req.body.id,
+      id,
       type: 'article',
       title: req.body.inputMessageTitle,
       input_message_content: {
