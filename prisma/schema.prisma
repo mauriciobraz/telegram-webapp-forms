@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Form {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @map("_id")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,7 +21,7 @@ model Form {
 }
 
 model FormCategory {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @map("_id")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -35,7 +35,7 @@ model FormCategory {
 }
 
 model FormQuestion {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @map("_id")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
